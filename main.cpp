@@ -2,8 +2,11 @@
 
 
 int main(int argc, char *argv[]){
- 	std::cout << "Have " << argc << " arguments:" << std::endl;
-	for (int i = 0; i < argc; ++i) {
-		std::cout << argv[i] << std::endl;
+	// Check if the file is passed as an argument or not
+	// if not then error out
+ 	if(argc != 2){
+		std::cout<<"\nFile Missing , Invalid number of arguments\n";
+		return 1;
 	}
+
 }
