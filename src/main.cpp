@@ -1,6 +1,5 @@
 #include<iostream>
 
-
 int main(int argc, char *argv[]){
 	// Check if the file is passed as an argument or not
 	// if not then error out
