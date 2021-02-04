@@ -5,6 +5,7 @@
 #include "src/Parser/Parser.h"
 #include "src/Utils/StringUtils.h"
 #include "src/Models/Structs.h"
+#include "src/Models/OpTable.h"
 
 std::ifstream inputFile;
 std::ofstream outputFile;
@@ -20,7 +21,6 @@ ParseResult readAndParse() {
 	std::string before = ReadLine(&inputFile);
 	trim(before);
 	ParseResult result = parse(before);
-	std::cout<<result;
 	return result;
 }
 
@@ -40,10 +40,12 @@ int main(int argc, char *argv[]){
 
 	openInitialStreams(argv[1],"listFile.txt");
 
-	ParseResult pl;
+	ParseResult result;
 
 	while (!inputFile.eof()) {
-		pl = readAndParse();
+		result = readAndParse();
 	}
+	std::cout<<result;
+	finish();
 	return 1;
 }
