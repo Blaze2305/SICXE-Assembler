@@ -20,7 +20,7 @@ ParseResult readAndParse() {
 	std::string before = ReadLine(&inputFile);
 	trim(before);
 	ParseResult result = parse(before);
-	std::cout<<"Label "<<result.label<<" Mnemonic "<<result.mnemonic<<" Op1 "<<result.operand1<<" Op2 "<<result.operand2<<" Type "<<result.type<<"\n--------------------------------------------------------------------\n";
+	std::cout<<result;
 	return result;
 }
 

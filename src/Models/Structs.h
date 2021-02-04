@@ -3,6 +3,7 @@
 
 #include<map>
 #include<string>
+#include<iostream>
 #include<vector>
 #include<bitset>
 
@@ -30,6 +31,10 @@ struct ParseResult{
 	std::string operand1;
 	std::string operand2;
 	std::string type;
+
+	friend std::ostream& operator << (std::ostream& out,const ParseResult &obj);
 };
+
+
 
 #endif

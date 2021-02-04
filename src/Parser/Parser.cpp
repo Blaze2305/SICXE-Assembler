@@ -44,7 +44,6 @@ ParseResult parse(std::string line) {
 		}
 
 		
-		
 		// Runs during the first iteration, j==0
 		if(j==0){
 			// convert the string to uppercase
@@ -87,6 +86,8 @@ ParseResult parse(std::string line) {
 
 
 	result.type = "Instruction";
+	// Used to store whatever is found after the mnemonic
+	std::string temp_string;
 	// Empty parse, return empty result
 	if (s[0] == ""){	
 		
@@ -110,29 +111,27 @@ ParseResult parse(std::string line) {
 		} else {
 			// else it has to be the the inst and a single operand 
 			result.mnemonic = s[0];
-			result.operand1 = s[1];
+			temp_string = s[1];
 		}
 	} else if (s[3] == "") {
-		
-
 		if (s[1][s[1].length() - 1] == ',' || s[2][0] == ',') {
 			result.mnemonic = s[0];
-			result.operand1 = s[1] + s[2];
+			temp_string = s[1] + s[2];
 		} else {
 			result.label = s[0];
 			result.mnemonic = s[1];
-			result.operand1 = s[2];
+			temp_string = s[2];
 		}
 	} else if (s[4] == "") {
 		
 
 		if (s[2].compare(",") == 0) {
 			result.mnemonic = s[0];
-			result.operand1 = s[1] + s[2] + s[3];
+			temp_string = s[1] + s[2] + s[3];
 		} else {
 			result.label = s[0];
 			result.mnemonic = s[1];
-			result.operand1 = s[2] + s[3];
+			temp_string = s[2] + s[3];
 		}
 	} else {
 		if(s[3].compare(",") != 0)
@@ -141,23 +140,27 @@ ParseResult parse(std::string line) {
 
 		result.label = s[0];
 		result.mnemonic = s[1];
-		result.operand1 = s[2] + s[3] + s[4];
+		temp_string = s[2] + s[3] + s[4];
 	}
 
-	s[0] = "";
-	s[1] = "";
-	for (i = 0; i < result.operand1.length() && result.operand1[i] != ','; i++){
-		s[0] += result.operand1[i];
+
+	// Parse the temp string to split into however many operands there are
+	std::string temp_op1 = "";
+	std::string temp_op2 = "";
+	// copy untill we reach ","
+	for (i = 0; i < temp_string.length() && temp_string[i] != ','; i++){
+		temp_op1 += temp_string[i];
 	}
-	if(i == result.operand1.length()-1 && result.operand1[i] == ','){
-		s[1] = ",";
+	if(i == temp_string.length()-1 && temp_string[i] == ','){
+		temp_op2 = ",";
 	}
 	else
-		for (i++; i < result.operand1.length(); i++){
-			s[1] += result.operand1[i];
+		for (i++; i < temp_string.length(); i++){
+			temp_op2 += temp_string[i];
 		}
-	result.operand1 = s[0];
-	result.operand2 = s[1];
+	// set the opernds
+	result.operand1 = temp_op1;
+	result.operand2 = temp_op2;
 	return result;
 }
 
