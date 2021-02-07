@@ -1,14 +1,20 @@
 #include<iostream>
 
-
 #include "src/IO/IO.h"
 #include "src/Parser/Parser.h"
 #include "src/Utils/StringUtils.h"
 #include "src/Models/Structs.h"
 #include "src/Models/OpTable.h"
+#include "src/Assembler/Pass1.h"
+// #include<src/Parser/Parser.h>
+// #include<src/Assembler/Pass1.h>
+// #include<src/Utils/StringUtils.h>
+// #include<src/Models/Structs.h>
+// #include<src/Models/OpTable.h>
 
 std::ifstream inputFile;
 std::ofstream outputFile;
+std::vector<ParseResult> parseArray;
 
 void openInitialStreams(std::string in, std::string out) {
 	// This function opens the file for reading and writing data
@@ -24,7 +30,7 @@ ParseResult readAndParse() {
 	return result;
 }
 
-void finish() {
+void closeFileStreams() {
 	// This function is called in last to close all opened file streams.
 	outputFile.close();
 	inputFile.close();
@@ -44,8 +50,10 @@ int main(int argc, char *argv[]){
 
 	while (!inputFile.eof()) {
 		result = readAndParse();
+		parseArray.push_back(result);
 	}
-	std::cout<<result;
-	finish();
-	return 1;
+
+	AssignLOCCTR(parseArray);
+	closeFileStreams();
+	return 0;
 }

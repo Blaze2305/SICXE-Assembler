@@ -2,8 +2,9 @@
 #define OPTABLE_H_
 
 #include<map>
-#include "src/Models/Structs.h"	
+#include "Structs.h"	
 
+void GetInstFormat(std::string mnemonic);
 
 const std::map<std::string,InstInfo> OPTAB {
 	{
@@ -63,9 +64,9 @@ const std::map<std::string,InstInfo> OPTAB {
 		}
 	},
 	{
-		"COMP",
+		"COMPR",
 		 {
-			"COMP",
+			"COMPR",
 			2,
 			0xA0
 		}
