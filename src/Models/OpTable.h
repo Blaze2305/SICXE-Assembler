@@ -4,7 +4,9 @@
 #include<map>
 #include "Structs.h"	
 
-void GetInstFormat(std::string mnemonic);
+int GetInstFormat(std::string mnemonic);
+int GetInstOpCode(std::string mnemonic);
+
 
 const std::map<std::string,InstInfo> OPTAB {
 	{

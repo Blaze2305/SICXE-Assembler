@@ -8,6 +8,6 @@
 #include<string>
 
 std::string ReadLine(std::ifstream *file);
-
+void WriteLine(std::ofstream* file, std::string line);
 
 #endif

@@ -5,3 +5,7 @@ std::string ReadLine(std::ifstream  *file) {
 	std::getline(*file, line);
 	return line;
 }
+
+void WriteLine(std::ofstream* file, std::string line) {
+	*file << line << std::endl;
+}

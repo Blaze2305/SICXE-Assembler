@@ -39,7 +39,9 @@ int main(int argc, char *argv[]){
 		return 1;
 	}
 
-	openInitialStreams(argv[1],"listFile.txt");
+	std::string output = "Output_"+Splitpath(argv[1]).back();
+
+	openInitialStreams(argv[1],output);
 
 	ParseResult result;
 

@@ -6,6 +6,10 @@
 #include<iostream>
 #include "../Models/Structs.h"
 #include "../Models/OpTable.h"
+#include "../Utils/StringUtils.h"
+
+
+#include "../IO/IO.h"
 
 void AssignLOCCTR(std::vector<ParseResult>&);
 

@@ -1,4 +1,6 @@
 *.exe
+*.out
 .vscode/
 listFile.txt
 build/
+Output_*
