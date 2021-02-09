@@ -8,15 +8,11 @@
 #include<bitset>
 
 
-
-
 // Structure to hold each instruction and its information
 struct InstInfo{
 	std::string mnemonic;// The instruction as its written
 	int format; //format 1 <----> 4
 	int opCode; // its opcode in hex
-
-
 	
 	friend std::ostream& operator << (std::ostream& out,const InstInfo &obj);
 
@@ -40,12 +36,20 @@ struct ParseResult{
 	std::string operand1;
 	std::string operand2;
 	std::string type;
-	
+	int block;
 	int location;
 	
 	friend std::ostream& operator << (std::ostream& out,const ParseResult &obj);
 };
 
+struct ProgBlock{
+	std::string BlockName;
+	int BlockNumber;
+	int StartingAddress;
+	int Length;
+
+	friend std::ostream& operator << (std::ostream& out,const ProgBlock &obj);
+};
 
 
 #endif

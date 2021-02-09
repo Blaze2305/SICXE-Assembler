@@ -1,7 +1,7 @@
 #ifndef OPTABLE_H_
 #define OPTABLE_H_
 
-#include<map>
+#include <map>
 #include "Structs.h"	
 
 int GetInstFormat(std::string mnemonic);

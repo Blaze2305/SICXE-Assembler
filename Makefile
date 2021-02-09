@@ -32,10 +32,10 @@ memtest:
 
 endif
 
+
 test: build
 	echo "Running Tests"
-	$(foreach var,$(TEST_FILES),${BUILD_DIR}/${BUILD_FILE} ${TEST_FILE_DIR}/${var})
-	
+	$(foreach var,$(TEST_FILES),${BUILD_DIR}/${BUILD_FILE} ${TEST_FILE_DIR}/${var};)
 .PHONY: test
 
 build: |buildDir

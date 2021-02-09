@@ -9,7 +9,10 @@
 
 std::ifstream inputFile;
 std::ofstream outputFile;
-std::vector<ParseResult> parseArray;
+std::vector<ParseResult> ParseArray;
+std::map<int,ProgBlock> BlockTable;
+
+
 
 void openInitialStreams(std::string in, std::string out) {
 	// This function opens the file for reading and writing data
@@ -38,7 +41,10 @@ int main(int argc, char *argv[]){
 		std::cout<<"\nFile Missing , Invalid number of arguments\n";
 		return 1;
 	}
-
+	std::cout<<"----------------------------------------------------------------------------\n";
+	std::cout<<argv[1]<<std::endl;
+	std::cout<<"----------------------------------------------------------------------------\n";
+	
 	std::string output = "Output_"+Splitpath(argv[1]).back();
 
 	openInitialStreams(argv[1],output);
@@ -47,10 +53,10 @@ int main(int argc, char *argv[]){
 
 	while (!inputFile.eof()) {
 		result = readAndParse();
-		parseArray.push_back(result);
+		ParseArray.push_back(result);
 	}
 
-	AssignLOCCTR(parseArray);
+	AssignLOCCTR(ParseArray,BlockTable);
 	closeFileStreams();
 	return 0;
 }

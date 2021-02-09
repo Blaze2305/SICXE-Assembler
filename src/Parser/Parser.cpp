@@ -18,7 +18,7 @@ bool checkIfNeedNoOperand(std::string inst){
 }
 
 bool checkIfAssemblerDirective(std::string mnemonic){
-	std::vector<std::string> assemblerDirectives {"START","END","EQU","ORG","BASE","LTORG","RESW","RESB","BYTE","WORD","NOBASE"};
+	std::vector<std::string> assemblerDirectives {"START","END","EQU","ORG","BASE","LTORG","RESW","RESB","BYTE","WORD","NOBASE","USE"};
 	std::string temp = ToUpperCase(mnemonic);
 	return std::find(assemblerDirectives.begin(),assemblerDirectives.end(),temp) != assemblerDirectives.end();
 }
