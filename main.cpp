@@ -11,7 +11,7 @@ std::ifstream inputFile;
 std::ofstream outputFile;
 std::vector<ParseResult> ParseArray;
 std::map<int,ProgBlock> BlockTable;
-
+std::vector<Literal> LITTAB;
 
 
 void openInitialStreams(std::string in, std::string out) {
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]){
 		ParseArray.push_back(result);
 	}
 
-	AssignLOCCTR(ParseArray,BlockTable);
+	AssignLOCCTR(ParseArray,BlockTable,LITTAB);
 	closeFileStreams();
 	return 0;
 }

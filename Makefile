@@ -27,8 +27,10 @@ BUILD_FILE = app.out
 TEST_FILES = ${shell ls ${TEST_FILE_DIR}}
 
 
-memtest: 
-	${MEMTEST} ${BUILD_DIR}/${BUILD_FILE} ${BASIC_TEST_FILE}
+memtest: build
+	echo "Running Tests"
+	$(foreach var,$(TEST_FILES), ${MEMTEST} ${BUILD_DIR}/${BUILD_FILE} ${TEST_FILE_DIR}/${var};)
+
 
 endif
 

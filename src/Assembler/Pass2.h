@@ -1,6 +1,6 @@
-#ifndef PASS_1_H_
+#ifndef PASS_2_H_
 
-#define PASS_1_H_
+#define PASS_2_H_
 
 #include <vector>
 #include <iostream>
@@ -12,6 +12,6 @@
 #include "../Utils/StringUtils.h"
 #include "../IO/IO.h"
 
-void AssignLOCCTR(std::vector<ParseResult>&,std::map<int,ProgBlock>&,std::vector<Literal>&);
+
 
 #endif

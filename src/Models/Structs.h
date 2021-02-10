@@ -51,5 +51,14 @@ struct ProgBlock{
 	friend std::ostream& operator << (std::ostream& out,const ProgBlock &obj);
 };
 
+struct Literal{
+	std::string Name;
+	std::string Value;
+	int Length;
+	int Address;
+	int Block;
+
+};
+
 
 #endif
