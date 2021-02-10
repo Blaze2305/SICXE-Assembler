@@ -1,8 +1,11 @@
 #ifndef OPTABLE_H_
 #define OPTABLE_H_
 
-#include<map>
-#include "src/Models/Structs.h"	
+#include <map>
+#include "Structs.h"	
+
+int GetInstFormat(std::string mnemonic);
+int GetInstOpCode(std::string mnemonic);
 
 
 const std::map<std::string,InstInfo> OPTAB {
@@ -63,9 +66,9 @@ const std::map<std::string,InstInfo> OPTAB {
 		}
 	},
 	{
-		"COMP",
+		"COMPR",
 		 {
-			"COMP",
+			"COMPR",
 			2,
 			0xA0
 		}

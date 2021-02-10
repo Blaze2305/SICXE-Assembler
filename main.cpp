@@ -1,14 +1,18 @@
 #include<iostream>
 
-
 #include "src/IO/IO.h"
 #include "src/Parser/Parser.h"
 #include "src/Utils/StringUtils.h"
 #include "src/Models/Structs.h"
 #include "src/Models/OpTable.h"
+#include "src/Assembler/Pass1.h"
 
 std::ifstream inputFile;
 std::ofstream outputFile;
+std::vector<ParseResult> ParseArray;
+std::map<int,ProgBlock> BlockTable;
+std::vector<Literal> LITTAB;
+
 
 void openInitialStreams(std::string in, std::string out) {
 	// This function opens the file for reading and writing data
@@ -24,7 +28,7 @@ ParseResult readAndParse() {
 	return result;
 }
 
-void finish() {
+void closeFileStreams() {
 	// This function is called in last to close all opened file streams.
 	outputFile.close();
 	inputFile.close();
@@ -37,15 +41,22 @@ int main(int argc, char *argv[]){
 		std::cout<<"\nFile Missing , Invalid number of arguments\n";
 		return 1;
 	}
+	std::cout<<"----------------------------------------------------------------------------\n";
+	std::cout<<argv[1]<<std::endl;
+	std::cout<<"----------------------------------------------------------------------------\n";
+	
+	std::string output = "Output_"+Splitpath(argv[1]).back();
 
-	openInitialStreams(argv[1],"listFile.txt");
+	openInitialStreams(argv[1],output);
 
 	ParseResult result;
 
 	while (!inputFile.eof()) {
 		result = readAndParse();
+		ParseArray.push_back(result);
 	}
-	std::cout<<result;
-	finish();
-	return 1;
+
+	AssignLOCCTR(ParseArray,BlockTable,LITTAB);
+	closeFileStreams();
+	return 0;
 }

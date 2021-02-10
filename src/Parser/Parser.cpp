@@ -17,6 +17,14 @@ bool checkIfNeedNoOperand(std::string inst){
 	return std::find(noOperandInsts.begin(),noOperandInsts.end(),temp) != noOperandInsts.end();
 }
 
+bool checkIfAssemblerDirective(std::string mnemonic){
+	std::vector<std::string> assemblerDirectives {"START","END","EQU","ORG","BASE","LTORG","RESW","RESB","BYTE","WORD","NOBASE","USE"};
+	std::string temp = ToUpperCase(mnemonic);
+	return std::find(assemblerDirectives.begin(),assemblerDirectives.end(),temp) != assemblerDirectives.end();
+}
+
+
+
 ParseResult parse(std::string line) {
 	//This function read the line supplied as argument and split it into
 	// fundamental elements of an instruction like lable, mnemonic, operand1 and
@@ -161,6 +169,11 @@ ParseResult parse(std::string line) {
 	// set the opernds
 	result.operand1 = temp_op1;
 	result.operand2 = temp_op2;
+
+	if(checkIfAssemblerDirective(result.mnemonic)){
+		result.type = "Directive";
+	}
+
 	return result;
 }
 

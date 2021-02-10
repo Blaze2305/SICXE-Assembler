@@ -14,7 +14,7 @@ ENDFIL    +JSUB     WRREC
           STA       LENGTH
           +JSUB     WRREC
           J         @RETADR
-          LTORG
+EOF       BYTE      C'EOF'
 RETADR    RESW      1
 LENGTH    RESW      1
 BUFFER    RESB      4096
@@ -50,4 +50,5 @@ WLOOP     TD        =X'05'
           TIXR      T
           JLT       WLOOP
           RSUB
+OUTPUT    BYTE      X'05'
           END       FIRST
