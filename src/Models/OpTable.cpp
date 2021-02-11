@@ -17,3 +17,12 @@ int GetInstOpCode(std::string mnemonic){
 		return pos->second.opCode;
 	}
 }
+
+int GetRegisterNumber(char registerCode){
+	std::map<char,int>::const_iterator pos = REGISTERS.find(registerCode);
+	if(pos == REGISTERS.end()){
+		throw std::runtime_error("INVALID REGISTER " + pos->second);
+	} else {
+		return pos->second;
+	}
+}

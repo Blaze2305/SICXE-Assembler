@@ -6,7 +6,18 @@
 
 int GetInstFormat(std::string mnemonic);
 int GetInstOpCode(std::string mnemonic);
+int GetRegisterNumber(char registerCode);
 
+
+const std::map<char,int> REGISTERS {
+	{'A',0},
+	{'X',1},
+	{'L',2},
+	{'B',3},
+	{'S',4},
+	{'T',5},
+	{'F',6}
+};
 
 const std::map<std::string,InstInfo> OPTAB {
 	{

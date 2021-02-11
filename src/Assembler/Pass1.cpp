@@ -63,7 +63,7 @@ int assignAddrToLITTAB(std::vector<Literal>& LITTAB,int &LOCCTR,std::vector<Pars
 	for(auto &obj : LITTAB){
 		if(obj.Address == -1){
 			count += 1;
-			std::cout<<"CURRENT INDEX "<<currIndex<<std::endl;
+			// std::cout<<"CURRENT INDEX "<<currIndex<<std::endl;
 			obj.Address = LOCCTR;
 			obj.Block = blockNumber;
 			LOCCTR += obj.Length;
@@ -96,12 +96,11 @@ void AssignLOCCTR(std::vector<ParseResult>& ParseArr,std::map<int,ProgBlock>& Bl
 	for(int i=0;i<ParseArr.size();i++){
 		ParseResult &obj = ParseArr[i];
 		if(ToUpperCase(obj.mnemonic) == "START"){
-			LOCCTR = std::stoi(ParseArr[0].operand1,(size_t*)nullptr,16);
-			BlockTable[0].StartingAddress = LOCCTR;
+			BlockTable[0].StartingAddress = std::stoi(ParseArr[0].operand1,(size_t*)nullptr,16);
 			continue;
 		}
 
-		obj.location = LOCCTR;
+		obj.location = BlockTable[currentBlockNumber].StartingAddress + LOCCTR;
 		obj.block = currentBlockNumber;
 		if(obj.type == "Comment"){
 			continue;
@@ -153,9 +152,11 @@ void AssignLOCCTR(std::vector<ParseResult>& ParseArr,std::map<int,ProgBlock>& Bl
 			LOCCTR += GetInstFormat(obj.mnemonic);
 		}
 	}
-	for(auto obj:ParseArr){
-		std::cout<<obj<<std::endl;
-	}
+
+	// for(auto obj:ParseArr){
+	// 	std::cout<<obj<<std::endl;
+	// }
+
 	BlockTable[currentBlockNumber].Length = LOCCTR;
 
 
@@ -173,12 +174,12 @@ void AssignLOCCTR(std::vector<ParseResult>& ParseArr,std::map<int,ProgBlock>& Bl
 	}
 
 
-	std::cout<<"LITERAL TABLE\n\n";
-	for(auto item: LITTAB){
-		std::cout<<item.Name<<"     ";
-		std::cout<<item.Value<<"     ";
-		std::cout<<std::hex<<item.Address<<std::dec<<"     ";
-		std::cout<<std::hex<<item.Length<<std::dec<<"     ";
-		std::cout<<item.Block<<"     \n";
-	}
+	// std::cout<<"LITERAL TABLE\n\n";
+	// for(auto item: LITTAB){
+	// 	std::cout<<item.Name<<"     ";
+	// 	std::cout<<item.Value<<"     ";
+	// 	std::cout<<std::hex<<item.Address<<std::dec<<"     ";
+	// 	std::cout<<std::hex<<item.Length<<std::dec<<"     ";
+	// 	std::cout<<item.Block<<"     \n";
+	// }
 }

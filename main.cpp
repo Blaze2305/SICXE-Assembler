@@ -6,6 +6,7 @@
 #include "src/Models/Structs.h"
 #include "src/Models/OpTable.h"
 #include "src/Assembler/Pass1.h"
+#include "src/Assembler/Pass2.h"
 
 std::ifstream inputFile;
 std::ofstream outputFile;
@@ -57,6 +58,7 @@ int main(int argc, char *argv[]){
 	}
 
 	AssignLOCCTR(ParseArray,BlockTable,LITTAB);
+	GenerateObjectProgram(ParseArray,LITTAB,BlockTable,&outputFile);
 	closeFileStreams();
 	return 0;
 }

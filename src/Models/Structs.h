@@ -60,5 +60,4 @@ struct Literal{
 
 };
 
-
 #endif
