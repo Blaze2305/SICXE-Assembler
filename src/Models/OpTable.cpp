@@ -3,16 +3,19 @@
 int GetInstFormat(std::string mnemonic){
 	std::map<std::string,InstInfo>::const_iterator pos = OPTAB.find(mnemonic);
 	if (pos == OPTAB.end()) {
-		throw std::runtime_error("INVALID INSTRUCTION " + pos->second.mnemonic);
+		throw std::runtime_error("INVALID INSTRUCTION " + mnemonic);
 	} else {
 		return pos->second.format;
 	}
 }
 
 int GetInstOpCode(std::string mnemonic){
+	if(mnemonic[0] == '+'){
+		mnemonic = mnemonic.substr(1);
+	}
 	std::map<std::string,InstInfo>::const_iterator pos = OPTAB.find(mnemonic);
 	if (pos == OPTAB.end()) {
-		throw std::runtime_error("INVALID INSTRUCTION " + pos->second.mnemonic);
+		throw std::runtime_error("INVALID INSTRUCTION " + mnemonic);
 	} else {
 		return pos->second.opCode;
 	}

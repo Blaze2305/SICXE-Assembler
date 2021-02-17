@@ -13,5 +13,6 @@
 
 
 ParseResult parse(std::string line);
+bool checkIfAssemblerDirective(std::string mnemonic);
 
 #endif

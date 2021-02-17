@@ -1,5 +1,4 @@
-*.exe
-*.out
+bin/
 .vscode/
 listFile.txt
 build/

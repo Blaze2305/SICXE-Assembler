@@ -1,8 +1,23 @@
 #include "Pass2.h"
 
-int getDisplacement(int PC, std::string mnemonic){
-
+// Function to get the value of the literal from the LITTAB
+// params:
+// 		literal : std::string The literal name
+// 		LITTAB : std::vector<Literal> Literal Table
+// retuns the value of the literal
+std::string getLiteralValue(std::string literal,std::vector<Literal> LITTAB){
+	for(auto item : LITTAB){
+		if(item.Name == literal){
+			return item.Value;
+		}
+	}
+	throw new std::string("LITERAL DOES NOT EXIST => " + literal);
+	
 }
+
+// int getDisplacement(int PC, std::string mnemonic,std::vector<ParseResult> ParseArr){
+	
+// }
 
 
 void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Literal>& LITTAB,std::map<int,ProgBlock>& BlockTable,std::ofstream* outfile){
@@ -24,13 +39,30 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 
 	for(auto parseItem : ParseArr){
 		ObjCode obj;
+		if(parseItem.type == "Comment"){
+			continue;
+		}
+
+		if(parseItem.type == "Directive"){
+			continue;
+		}
+
+		if(parseItem.mnemonic[0] == '='){
+			obj.value = getLiteralValue(parseItem.mnemonic,LITTAB);
+			continue;
+		}
+
 		obj.operation = GetInstOpCode(parseItem.mnemonic);
 		obj.format = parseItem.mnemonic[0] == '+' ? 4 : GetInstFormat(parseItem.mnemonic);
+
+
+
+
 		if(obj.format == 1){
 			continue;
 		}else if(obj.format == 2){
 			obj.reg1 = GetRegisterNumber(parseItem.operand1[0]);
-			obj.reg2 = GetRegisterNumber(parseItem.operand2[0]);
+			obj.reg2 = parseItem.operand2 != ""?GetRegisterNumber(parseItem.operand2[0]):0;
 		}else if(obj.format == 3 || obj.format == 4){
 			if(parseItem.operand1[0] == '#'){
 				obj.flags[0] = 0;
@@ -54,9 +86,13 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 			}else{
 				
 			}
-
 		}
 		
+		ObjectCodes.push_back(obj);
 	}
+
+	// for(auto item:ObjectCodes){
+	// 	std::cout<<item;
+	// }
 
 }

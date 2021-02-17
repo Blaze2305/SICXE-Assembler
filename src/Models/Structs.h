@@ -26,6 +26,9 @@ struct ObjCode{
 	int format; // format 1 <---> 4
 	int reg1;
 	int reg2;
+	std::string value;
+	friend std::ostream& operator << (std::ostream& out,const ObjCode &obj);
+
 };
 
 
@@ -58,6 +61,14 @@ struct Literal{
 	int Address;
 	int Block;
 
+};
+
+
+struct SymTabRow {
+	std::string SymbolName;
+	int BlockNumber;
+	char Type;
+	int Address;
 };
 
 #endif

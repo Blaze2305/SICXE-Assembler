@@ -13,6 +13,7 @@ std::ofstream outputFile;
 std::vector<ParseResult> ParseArray;
 std::map<int,ProgBlock> BlockTable;
 std::vector<Literal> LITTAB;
+std::map<std::string,SymTabRow> SYMTAB;
 
 
 void openInitialStreams(std::string in, std::string out) {
@@ -57,7 +58,7 @@ int main(int argc, char *argv[]){
 		ParseArray.push_back(result);
 	}
 
-	AssignLOCCTR(ParseArray,BlockTable,LITTAB);
+	AssignLOCCTR(ParseArray,BlockTable,LITTAB,SYMTAB);
 	GenerateObjectProgram(ParseArray,LITTAB,BlockTable,&outputFile);
 	closeFileStreams();
 	return 0;

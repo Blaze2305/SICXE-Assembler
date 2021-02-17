@@ -12,6 +12,6 @@
 #include "../Utils/StringUtils.h"
 #include "../IO/IO.h"
 
-void AssignLOCCTR(std::vector<ParseResult>&,std::map<int,ProgBlock>&,std::vector<Literal>&);
+void AssignLOCCTR(std::vector<ParseResult>&,std::map<int,ProgBlock>&,std::vector<Literal>&,std::map<std::string,SymTabRow>&);
 
 #endif

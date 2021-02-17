@@ -9,6 +9,7 @@
 #include <iomanip>
 #include "../Models/Structs.h"
 #include "../Models/OpTable.h"
+#include "../Parser/Parser.h"
 #include "../Utils/StringUtils.h"
 #include "../IO/IO.h"
 
