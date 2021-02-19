@@ -10,7 +10,7 @@
 #include "../Models/Structs.h"
 #include "../Models/OpTable.h"
 #include "../Parser/Parser.h"
-#include "../Utils/StringUtils.h"
+#include "../Utils/Utils.h"
 #include "../IO/IO.h"
 
 

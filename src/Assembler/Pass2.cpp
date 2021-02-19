@@ -4,7 +4,7 @@
 // params:
 // 		literal : std::string The literal name
 // 		LITTAB : std::vector<Literal> Literal Table
-// retuns the value of the literal
+// returns the value of the literal
 std::string getLiteralValue(std::string literal,std::vector<Literal> LITTAB){
 	for(auto item : LITTAB){
 		if(item.Name == literal){
@@ -16,7 +16,7 @@ std::string getLiteralValue(std::string literal,std::vector<Literal> LITTAB){
 }
 
 // int getDisplacement(int PC, std::string mnemonic,std::vector<ParseResult> ParseArr){
-	
+	// To do : calc displacement , would be easier if symtab was implemented so do that first
 // }
 
 
@@ -24,16 +24,19 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 	std::string progName = ParseArr[0].label;
 	std::string startingAddr = ParseArr[0].operand1;
 	std::ostringstream headerRecord;
+	
 	if(progName.length() >6){
 		progName.resize(6);
 	}
+
 	headerRecord<<progName;
 	headerRecord<<std::setw(6)<<std::setfill('0')<<startingAddr;
+
+	
 	int progLength = BlockTable[BlockTable.size() - 1].StartingAddress + BlockTable[BlockTable.size() - 1].Length ; 
 	headerRecord<<std::setw(6)<<std::setfill('0')<<std::hex<<progLength<<std::dec<<std::endl;
-	WriteLine(outfile,headerRecord.str());
 
-	std::ostringstream textRecords;
+	WriteLine(outfile,headerRecord.str());
 
 	std::vector<ObjCode> ObjectCodes;
 

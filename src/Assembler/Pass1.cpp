@@ -88,20 +88,59 @@ void addToLITTAB(std::vector<Literal>& LITTAB,std::string literal){
 // 	int Address;
 // };
 
-int evalSymbol(std::string symbVal){
+std::pair<int,char> evalSymbol(std::string symbVal,std::map<std::string,SymTabRow>& SYMTAB){
+	std::cout<<symbVal<<std::endl;
+	std::vector<std::string> expression = infixToPostfix(symbVal);
+	std::vector<std::string> exprCopy = expression;
+	int value ;
+	char type = 'R';
+	for(int i=0;i<expression.size();i++){
+		if(is_number(expression[i])){
+			exprCopy.at(i) = expression[i];
+		}else if(!isOperator(expression[i])){
+			int value = SYMTAB[expression[i]].Value;
+			expression.at(i) = std::to_string(value);
+		}
+	}
+	value = evaluatePostfix(expression);
 
+	for(int i=0;i<exprCopy.size();i++){
+		if(is_number(exprCopy[i])){
+			exprCopy.at(i) = std::to_string(0);
+		}else if(!isOperator(exprCopy[i])){
+			exprCopy.at(i) = std::to_string(1);
+		}
+	}
+	int tempValue = evaluatePostfix(exprCopy);
+	if(tempValue == 0){
+		type = 'A';
+	}
+	std::cout<<value<<std::endl;
+	return std::pair<int,char>{value,type};
 }
 
 
-void addToSymbolTable(std::string label, std::string value, int blockNum , std::map<std::string,SymTabRow>& SYMTAB){
+void addToSymbolTable(std::string label, std::string value, int blockNum , std::map<std::string,SymTabRow>& SYMTAB, std::string type){
 	int tempValue;
+	char valueType;
 	// TO DO : evaluate value of symbol
+	if(type == "Simple" || type == "Addr"){
+		tempValue = std::stoi(value);
+		valueType = 'R';
+	}else if (type == "Number"){
+		tempValue = std::stoi(value);
+		valueType = 'A';
+	}else{
+		evalSymbol(value,SYMTAB);
+	}
 	SymTabRow obj = {
 		label,
 		blockNum,
-		' ',
+		valueType,
 		tempValue
 	};
+
+	SYMTAB[label] = obj;
 }
 
 // Function to assign an address to the Literals in the LITTAB
@@ -151,7 +190,6 @@ void AssignLOCCTR(std::vector<ParseResult>& ParseArr,std::map<int,ProgBlock>& Bl
 	// go through each parsed item in the parseArr list and assign an address
 	for(int i=0;i<ParseArr.size();i++){
 		ParseResult &obj = ParseArr[i];
-
 		// get the starting address from the START directive
 		if(ToUpperCase(obj.mnemonic) == "START"){
 			BlockTable[0].StartingAddress = std::stoi(ParseArr[0].operand1,(size_t*)nullptr,16);
@@ -167,6 +205,10 @@ void AssignLOCCTR(std::vector<ParseResult>& ParseArr,std::map<int,ProgBlock>& Bl
 			continue;
 		}
 
+
+		if(obj.label != "" && obj.mnemonic != "EQU"){
+			addToSymbolTable(obj.label,std::to_string(LOCCTR),currentBlockNumber,SYMTAB,"Simple");
+		}
 
 		// Handles literals
 		if(obj.operand1[0] == '='){
@@ -236,7 +278,19 @@ void AssignLOCCTR(std::vector<ParseResult>& ParseArr,std::map<int,ProgBlock>& Bl
 
 			// handle User defined symbols
 			}else if(ToUpperCase(obj.mnemonic) == "EQU"){
-				// TO DO 
+				// std::cout<<obj;
+				if(obj.operand1 == "*"){
+					addToSymbolTable(obj.label,std::to_string(BlockTable[currentBlockNumber].StartingAddress + LOCCTR),currentBlockNumber,SYMTAB,"Addr");
+				}else if(is_number(obj.operand1)){
+					addToSymbolTable(obj.label,obj.operand1,currentBlockNumber,SYMTAB,"Number");
+				}else{
+					std::string tempOperand1 = obj.operand1;
+					// remove extra spaces in the operand ie allow "a - b" also instead of just "a-b"
+					std::string::iterator end_pos = std::remove(tempOperand1.begin(), tempOperand1.end(), ' ');
+					tempOperand1.erase(end_pos, tempOperand1.end());
+					addToSymbolTable(obj.label,tempOperand1,currentBlockNumber,SYMTAB,"Calc");
+				}
+
 			}else{
 				continue;
 			}

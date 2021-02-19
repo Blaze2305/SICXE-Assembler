@@ -51,3 +51,48 @@ std::ostream& operator << (std::ostream& out,const ObjCode &obj){
 	return out;
 }
 
+
+std::ostream& operator<< (std::ostream& out, const std::vector<std::string>& obj){
+	out<<"\n---------------------------------------VECTOR INFO---------------------------------------\n";
+	for(auto item :obj){
+		out<<item<<std::endl;
+	}
+	out<<"\n------------------------------------------------------------------------------\n";
+	return out;
+}
+
+std::ostream& operator<< (std::ostream& out, const std::stack<std::string>& obj){
+	out<<"\n---------------------------------------STACK INFO---------------------------------------\n";
+	int length = obj.size();
+	std::stack<std::string> copyObj = obj;
+	for(int i=0;i<copyObj.size();i++){
+		out<<length - copyObj.size() + 1<<" -----> " << copyObj.top()<<std::endl;
+		copyObj.pop();
+	}
+	out<<"\n------------------------------------------------------------------------------\n";
+	return out;
+}
+
+std::ostream& operator<< (std::ostream& out, const SymTabRow& obj){
+	out<<"\n------------------------------------------------------------------------------\n";
+	out<<"Symbol Name --> "<<obj.SymbolName<<std::endl;
+	out<<"Block Number --> "<<obj.BlockNumber<<std::endl;
+	out<<"Type --> "<<obj.Type<<std::endl;
+	out<<"Value --> "<<obj.Value<<std::endl;
+	out<<"\n------------------------------------------------------------------------------\n";
+	return out;
+}
+
+
+
+std::ostream& operator<< (std::ostream& out, const std::map<std::string,SymTabRow>& obj){
+	out<<"\n--------------------------------------- SYMBOL TABLE ---------------------------------------\n";
+	for (auto const& x : obj){
+		std::cout << x.first  // string (key)
+				<< ':' 
+				<< x.second // string's value 
+				<< std::endl;
+	}
+	out<<"\n------------------------------------------------------------------------------\n";
+	return out;
+}

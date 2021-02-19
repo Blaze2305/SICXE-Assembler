@@ -2,7 +2,7 @@
 
 #include "src/IO/IO.h"
 #include "src/Parser/Parser.h"
-#include "src/Utils/StringUtils.h"
+#include "src/Utils/Utils.h"
 #include "src/Models/Structs.h"
 #include "src/Models/OpTable.h"
 #include "src/Assembler/Pass1.h"
@@ -16,8 +16,8 @@ std::vector<Literal> LITTAB;
 std::map<std::string,SymTabRow> SYMTAB;
 
 
+// This function opens the file for reading and writing data
 void openInitialStreams(std::string in, std::string out) {
-	// This function opens the file for reading and writing data
 	inputFile.open(in.c_str());
 	std::remove(out.c_str());
 	outputFile.open(out.c_str(), std::ios::app);
@@ -30,8 +30,8 @@ ParseResult readAndParse() {
 	return result;
 }
 
+// This function is called in last to close all opened file streams.
 void closeFileStreams() {
-	// This function is called in last to close all opened file streams.
 	outputFile.close();
 	inputFile.close();
 }

@@ -1,11 +1,12 @@
 #ifndef STRUCT_H_
 #define STRUCT_H_
 
-#include<map>
-#include<string>
-#include<iostream>
-#include<vector>
-#include<bitset>
+#include <map>
+#include <string>
+#include <iostream>
+#include <vector>
+#include <bitset>
+#include <stack>
 
 
 // Structure to hold each instruction and its information
@@ -68,7 +69,14 @@ struct SymTabRow {
 	std::string SymbolName;
 	int BlockNumber;
 	char Type;
-	int Address;
+	int Value;
+
+	friend std::ostream& operator << (std::ostream& out,const SymTabRow& obj);
+
 };
+
+std::ostream& operator<< (std::ostream& out, const std::vector<std::string>& obj);
+std::ostream& operator<< (std::ostream& out, const std::stack<std::string>& obj);
+std::ostream& operator<< (std::ostream& out, const std::map<std::string,SymTabRow>& obj);
 
 #endif
