@@ -59,7 +59,8 @@ int main(int argc, char *argv[]){
 	}
 
 	AssignLOCCTR(ParseArray,BlockTable,LITTAB,SYMTAB);
-	GenerateObjectProgram(ParseArray,LITTAB,BlockTable,&outputFile);
+	GenerateObjectProgram(ParseArray,LITTAB,BlockTable,SYMTAB,&outputFile);
 	closeFileStreams();
+	std::cout<<"\n\n\n";
 	return 0;
 }

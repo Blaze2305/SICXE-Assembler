@@ -15,12 +15,117 @@ std::string getLiteralValue(std::string literal,std::vector<Literal> LITTAB){
 	
 }
 
-// int getDisplacement(int PC, std::string mnemonic,std::vector<ParseResult> ParseArr){
-	// To do : calc displacement , would be easier if symtab was implemented so do that first
-// }
+int getAbsoluteDisplacement(std::string label,std::map<std::string,SymTabRow> SYMTAB,std::vector<Literal> LITTAB,std::map<int,ProgBlock> BlockTable){
+	int TargetAddr;
+	std::string temp = "";
+	if(label[0] == '#'){
+
+		temp = label.substr(1);
+		if(is_number(temp)){
+			TargetAddr = std::stoi(temp);
+			return TargetAddr;
+		}
+
+	}else if(label[0] == '@'){
+		temp = label.substr(1);
+	}else{
+		temp = label;
+	}
+
+	auto iter = SYMTAB.find(temp);
+	if ( iter != SYMTAB.end() ) {
+		if(iter->second.Type == 'A'){
+			TargetAddr = iter->second.Value;
+			return TargetAddr;
+		}else{
+			int blockNumber = iter->second.BlockNumber;
+			TargetAddr = iter->second.Value + BlockTable[blockNumber].StartingAddress;
+			return TargetAddr;
+		}
+	}
+	throw std::runtime_error("INVALID SYMBOL USED  " + temp);
 
 
-void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Literal>& LITTAB,std::map<int,ProgBlock>& BlockTable,std::ofstream* outfile){
+}
+
+
+std::pair<int,int> getDisplacement(int PC, int Base,std::string label,std::vector<Literal> LITTAB,std::map<std::string,SymTabRow> SYMTAB,std::map<int,ProgBlock> BlockTable){
+
+	// -8264 <= x <= 8263 PC rel
+
+	// 0 <= x <= 16533 Base rel	
+	enum TYPES {
+		NO_REL,
+		PC_REL,
+		BASE_REL
+	};
+
+	int TargetAddr;
+
+	std::string temp = "";
+	if(label[0] == '='){
+		std::vector<Literal>::iterator position;
+		position = std::find_if(LITTAB.begin(),LITTAB.end(),[label](Literal val){
+			return(val.Name == label);
+		});
+		if(position == LITTAB.end()){
+			std::string err = "INVALID LITERAL USED  " + label;
+			throw std::runtime_error(err);
+		}else{
+			TargetAddr = position->Address + BlockTable[position->Block].StartingAddress;
+		}
+	}else if(label[0] == '#'){
+
+		temp = label.substr(1);
+		if(is_number(temp)){
+			TargetAddr = std::stoi(temp);
+			return std::pair<int,int>{NO_REL,TargetAddr};
+		}
+
+	}else if(label[0] == '@'){
+		temp = label.substr(1);
+	}else{
+		temp = label;
+	}
+
+	if(temp != ""){
+		auto iter = SYMTAB.find(temp);
+		if ( iter != SYMTAB.end() ) {
+			if(iter->second.Type == 'A'){
+				TargetAddr = iter->second.Value;
+				return std::pair<int,int>{NO_REL,TargetAddr};
+			}else{
+				int blockNumber = iter->second.BlockNumber;
+				TargetAddr = iter->second.Value + BlockTable[blockNumber].StartingAddress;
+			}
+		} else {
+			// https://stackoverflow.com/questions/59518468/terminate-called-after-throwing-an-instance-of-char-const-in-string-function
+
+			std::string err = "INVALID SYMBOL USED  " + label;
+			throw std::runtime_error(err);
+		}
+	}
+
+	int disp;
+	disp = TargetAddr - PC;
+
+	if(disp >= -8264 && disp <= 8263){
+		return std::pair<int,int>{PC_REL,disp};
+	}
+
+	disp = TargetAddr - Base;
+
+	if(disp >= 0 && disp <= 16533){
+		return std::pair<int,int>{BASE_REL,disp};
+	}
+
+	throw "INSTRUCTION NEEDS TO BE FORMAT 4 : ";
+}
+
+
+
+
+void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Literal>& LITTAB,std::map<int,ProgBlock>& BlockTable,std::map<std::string,SymTabRow>& SYMTAB,std::ofstream* outfile){
 	std::string progName = ParseArr[0].label;
 	std::string startingAddr = ParseArr[0].operand1;
 	std::ostringstream headerRecord;
@@ -39,22 +144,48 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 	WriteLine(outfile,headerRecord.str());
 
 	std::vector<ObjCode> ObjectCodes;
+	bool baseRegSet = false;
+	int BASE = 0;
+	int PCIndex;
+	int PC;
+	
+	for(int i = 0 ;i < ParseArr.size();i++){
+		ObjCode obj {};
+		ParseResult &parseItem = ParseArr[i];
 
-	for(auto parseItem : ParseArr){
-		ObjCode obj;
+		PCIndex = i != ParseArr.size() ? i+1 : ParseArr.size();
+		PC = ParseArr[PCIndex].location;
+
 		if(parseItem.type == "Comment"){
 			continue;
 		}
 
 		if(parseItem.type == "Directive"){
+			if(ToUpperCase(parseItem.mnemonic) == "BASE"){
+				baseRegSet = true;
+			}
 			continue;
+		}
+		
+		if(ToUpperCase(parseItem.mnemonic).find("LDB") != std::string::npos){
+			if(!baseRegSet){
+				throw std::runtime_error("BASE DIRECTIVE MISSING");
+			}
+			
+			std::pair<int,int> tempPair ;
+			try{
+				tempPair = getDisplacement(PC,BASE,parseItem.operand1,LITTAB,SYMTAB,BlockTable);
+			}catch(const char * err){
+				throw std::runtime_error(err + parseItem.label + "   " + parseItem.mnemonic + "  " + parseItem.operand1 + " " + parseItem.operand2);
+			}
+
+			BASE = tempPair.second;
 		}
 
 		if(parseItem.mnemonic[0] == '='){
 			obj.value = getLiteralValue(parseItem.mnemonic,LITTAB);
 			continue;
 		}
-
 		obj.operation = GetInstOpCode(parseItem.mnemonic);
 		obj.format = parseItem.mnemonic[0] == '+' ? 4 : GetInstFormat(parseItem.mnemonic);
 
@@ -86,11 +217,49 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 				obj.flags[3] = 0; 
 				obj.flags[4] = 0; 
 				obj.flags[5] = 1;
+				obj.displacement = getAbsoluteDisplacement(parseItem.operand1,SYMTAB,LITTAB,BlockTable);
+				std::cout<<obj;
 			}else{
-				
+				// calc displacement for format 3 instructions
+
+				// exception to this statement, as RSUB is a format 3/4 inst but it doesnt have an argument
+				// thus parseItem.operand1 is empty and throws and error in getDisplacement
+				// spent 2 hours finding this, figured it out. am proud.
+				if(ToUpperCase(parseItem.mnemonic) == "RSUB"){
+					obj.displacement = 0;
+				}else{
+					std::pair<int,int> disp = getDisplacement(PC,BASE,parseItem.operand1,LITTAB,SYMTAB,BlockTable); 
+					switch(disp.first){
+						case 0:{
+								obj.flags[3] = 0; 
+								obj.flags[4] = 0; 
+								obj.flags[5] = 0;
+								break;
+						}
+						case 1:{
+								obj.flags[3] = 0; 
+								obj.flags[4] = 1; 
+								obj.flags[5] = 0;
+								break;
+						}
+						case 2:{
+								obj.flags[3] = 1; 
+								obj.flags[4] = 0; 
+								obj.flags[5] = 0;
+								break;
+						}
+					}
+
+					obj.displacement = disp.second;
+				}
 			}
 		}
-		
+		std::ostringstream out;
+		out<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+		out<<parseItem;
+		out<<obj;
+		out<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+		WriteLine(outfile,out.str());
 		ObjectCodes.push_back(obj);
 	}
 

@@ -14,6 +14,6 @@
 #include "../IO/IO.h"
 
 
-void GenerateObjectProgram(std::vector<ParseResult>& ,std::vector<Literal>& ,std::map<int,ProgBlock>& ,std::ofstream*);
+void GenerateObjectProgram(std::vector<ParseResult>& ,std::vector<Literal>& ,std::map<int,ProgBlock>& ,std::map<std::string,SymTabRow>&,std::ofstream*);
 
 #endif

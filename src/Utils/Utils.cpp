@@ -95,7 +95,6 @@ std::vector<std::string> infixToPostfix(std::string str){
 	for(auto item:str){
 
 		if(std::isalnum(item)){
-			std::cout<<"ITEM --> "<<item<<std::endl;
 			operand += item;
 			continue;
 		}else{
@@ -142,7 +141,6 @@ std::vector<std::string> infixToPostfix(std::string str){
 		infixStack.pop(); 
 		exp.push_back(c);
 	} 
-	std::cout<<exp;
 	return exp;
 
 } 

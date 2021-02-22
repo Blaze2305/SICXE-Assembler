@@ -67,7 +67,9 @@ void addToLITTAB(std::vector<Literal>& LITTAB,std::string literal){
 		value = literal.substr(3,literal.length()-4);
 		length = value.length()/2;
 	}else{
-		value = literal;
+		std::ostringstream out;
+		out<<std::hex<<std::stoi(literal);
+		value = out.str();
 	}
 	// if the literal already exists, no need for a duplicate so we dont create one
 	if(!checkIfLiteralExists(LITTAB,value)){
@@ -81,27 +83,22 @@ void addToLITTAB(std::vector<Literal>& LITTAB,std::string literal){
 	}
 }
 
-// struct SymTabRow {
-// 	std::string SymbolName;
-// 	int BlockNumber;
-// 	char Type;
-// 	int Address;
-// };
 
 std::pair<int,char> evalSymbol(std::string symbVal,std::map<std::string,SymTabRow>& SYMTAB){
-	std::cout<<symbVal<<std::endl;
 	std::vector<std::string> expression = infixToPostfix(symbVal);
 	std::vector<std::string> exprCopy = expression;
 	int value ;
 	char type = 'R';
 	for(int i=0;i<expression.size();i++){
 		if(is_number(expression[i])){
-			exprCopy.at(i) = expression[i];
+			int exprHexVal = std::stoi(expression[i],(size_t*)nullptr,16);
+			expression.at(i) = std::to_string(exprHexVal);
 		}else if(!isOperator(expression[i])){
 			int value = SYMTAB[expression[i]].Value;
 			expression.at(i) = std::to_string(value);
 		}
 	}
+
 	value = evaluatePostfix(expression);
 
 	for(int i=0;i<exprCopy.size();i++){
@@ -115,7 +112,6 @@ std::pair<int,char> evalSymbol(std::string symbVal,std::map<std::string,SymTabRo
 	if(tempValue == 0){
 		type = 'A';
 	}
-	std::cout<<value<<std::endl;
 	return std::pair<int,char>{value,type};
 }
 
@@ -131,7 +127,9 @@ void addToSymbolTable(std::string label, std::string value, int blockNum , std::
 		tempValue = std::stoi(value);
 		valueType = 'A';
 	}else{
-		evalSymbol(value,SYMTAB);
+		std::pair<int,char> symbolValue = evalSymbol(value,SYMTAB);
+		tempValue = symbolValue.first;
+		valueType = symbolValue.second;
 	}
 	SymTabRow obj = {
 		label,
@@ -149,7 +147,6 @@ int assignAddrToLiterals(std::vector<Literal>& LITTAB,int &LOCCTR,std::vector<Pa
 	for(auto &obj : LITTAB){
 		if(obj.Address == -1){
 			count += 1;
-			// std::cout<<"CURRENT INDEX "<<currIndex<<std::endl;
 			obj.Address = LOCCTR;
 			obj.Block = blockNumber;
 			LOCCTR += obj.Length;
@@ -192,7 +189,12 @@ void AssignLOCCTR(std::vector<ParseResult>& ParseArr,std::map<int,ProgBlock>& Bl
 		ParseResult &obj = ParseArr[i];
 		// get the starting address from the START directive
 		if(ToUpperCase(obj.mnemonic) == "START"){
-			BlockTable[0].StartingAddress = std::stoi(ParseArr[0].operand1,(size_t*)nullptr,16);
+			BlockTable[0].StartingAddress = std::stoi(obj.operand1,(size_t*)nullptr,16);
+			continue;
+		}
+
+		// ignore a comment
+		if(obj.type == "Comment"){
 			continue;
 		}
 
@@ -200,10 +202,7 @@ void AssignLOCCTR(std::vector<ParseResult>& ParseArr,std::map<int,ProgBlock>& Bl
 		obj.location = BlockTable[currentBlockNumber].StartingAddress + LOCCTR;
 		obj.block = currentBlockNumber;
 
-		// ignore a comment
-		if(obj.type == "Comment"){
-			continue;
-		}
+		
 
 
 		if(obj.label != "" && obj.mnemonic != "EQU"){
@@ -278,7 +277,6 @@ void AssignLOCCTR(std::vector<ParseResult>& ParseArr,std::map<int,ProgBlock>& Bl
 
 			// handle User defined symbols
 			}else if(ToUpperCase(obj.mnemonic) == "EQU"){
-				// std::cout<<obj;
 				if(obj.operand1 == "*"){
 					addToSymbolTable(obj.label,std::to_string(BlockTable[currentBlockNumber].StartingAddress + LOCCTR),currentBlockNumber,SYMTAB,"Addr");
 				}else if(is_number(obj.operand1)){
@@ -309,6 +307,9 @@ void AssignLOCCTR(std::vector<ParseResult>& ParseArr,std::map<int,ProgBlock>& Bl
 		BlockTable[i].StartingAddress = BlockTable[i-1].StartingAddress + BlockTable[i-1].Length;
 	}
 
+	// for(auto item : ParseArr){
+	// 	std::cout<<item;
+	// }
 
 	// DEBUG :: PRINT THE BLOCK TABLE
 	// std::cout<<"BLOCK TABLE\n\n\n";

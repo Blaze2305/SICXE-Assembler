@@ -27,7 +27,7 @@ struct ObjCode{
 	int format; // format 1 <---> 4
 	int reg1;
 	int reg2;
-	std::string value;
+	std::string value; // Used for literal pools, BYTE, WORD
 	friend std::ostream& operator << (std::ostream& out,const ObjCode &obj);
 
 };
@@ -62,6 +62,7 @@ struct Literal{
 	int Address;
 	int Block;
 
+	friend std::ostream& operator << (std::ostream& out,const Literal& obj);
 };
 
 
@@ -75,8 +76,10 @@ struct SymTabRow {
 
 };
 
+
 std::ostream& operator<< (std::ostream& out, const std::vector<std::string>& obj);
 std::ostream& operator<< (std::ostream& out, const std::stack<std::string>& obj);
 std::ostream& operator<< (std::ostream& out, const std::map<std::string,SymTabRow>& obj);
+
 
 #endif

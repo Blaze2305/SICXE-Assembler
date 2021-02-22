@@ -34,7 +34,7 @@ std::ostream& operator << (std::ostream& out,const ProgBlock &obj){
 
 std::ostream& operator << (std::ostream& out,const ObjCode &obj){
 	out<<"\n---------------------------------------OBJECT CODE INFO---------------------------------------\n";
-	out<<"Operation Code --> "<<obj.operation<<std::endl;
+	out<<"Operation Code --> "<<std::hex<<obj.operation<<std::hex<<std::endl;
 	out<<"Format --> "<<obj.format<<std::endl;
 	out<<"Displacement --> "<<std::hex<<obj.displacement<<std::dec<<std::endl;
 	out<<"Register 1 --> "<<obj.reg1<<std::endl;
@@ -78,7 +78,7 @@ std::ostream& operator<< (std::ostream& out, const SymTabRow& obj){
 	out<<"Symbol Name --> "<<obj.SymbolName<<std::endl;
 	out<<"Block Number --> "<<obj.BlockNumber<<std::endl;
 	out<<"Type --> "<<obj.Type<<std::endl;
-	out<<"Value --> "<<obj.Value<<std::endl;
+	out<<"Value --> "<<std::hex<<obj.Value<<std::dec<<std::endl;
 	out<<"\n------------------------------------------------------------------------------\n";
 	return out;
 }
@@ -88,7 +88,7 @@ std::ostream& operator<< (std::ostream& out, const SymTabRow& obj){
 std::ostream& operator<< (std::ostream& out, const std::map<std::string,SymTabRow>& obj){
 	out<<"\n--------------------------------------- SYMBOL TABLE ---------------------------------------\n";
 	for (auto const& x : obj){
-		std::cout << x.first  // string (key)
+		out << x.first  // string (key)
 				<< ':' 
 				<< x.second // string's value 
 				<< std::endl;
@@ -96,3 +96,15 @@ std::ostream& operator<< (std::ostream& out, const std::map<std::string,SymTabRo
 	out<<"\n------------------------------------------------------------------------------\n";
 	return out;
 }
+
+std::ostream& operator << (std::ostream& out,const Literal& obj){
+	out<<"\n------------------------------------------------------------------------------\n";
+	out<<"Literal Name --> "<<obj.Name<<std::endl;
+	out<<"Literal Value --> "<<obj.Value<<std::endl;
+	out<<"Literla Length --> "<<obj.Length<<std::endl;
+	out<<"Block number --> "<<obj.Block<<std::endl;
+	out<<"Literal Address --> "<<std::hex<<obj.Address<<std::dec<<std::endl;
+	out<<"\n------------------------------------------------------------------------------\n";
+	return out;
+}
+

@@ -1,0 +1,15 @@
+. Adding elements of Two arrays of size 100 and storing in Gamma ie Gamma = Alpha +  Beta
+ADDN 	START	0
+		LDX 	#0
+		LDS 	#300
+		LDT 	#3
+LOOP	LDA		ALPHA,X
+		ADD		BETA,X
+		STA		GAMMA,X
+		ADDR	T,X
+		COMPR	X,S
+		JLT		LOOP
+ALPHA 	RESW	100
+BETA 	RESW	100
+GAMMA 	RESW	100
+		END
