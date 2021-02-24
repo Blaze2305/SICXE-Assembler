@@ -146,6 +146,52 @@ std::pair<int,std::string> getByteDirectiveValue(std::string mnemonic){
 }
 
 
+	
+std::string generateTextRecord(std::string startingAddr, std::vector<ObjCode>& ObjectCodes,std::map<int,ProgBlock> BlockTable){
+	std::ostringstream textRecord;
+	std::ostringstream temp;
+	std::string tempObjCode;
+	int length = 0;
+	int currentBlockNumber = ObjectCodes[0].blockNumber;
+
+	textRecord << "T"<< std::setw(4)<<std::setfill('0')<<startingAddr;	
+	for(int i = 0; i < ObjectCodes.size();i++){
+		tempObjCode = GenerateOpCode(ObjectCodes[i]);
+		length += tempObjCode.length()/2;
+		std::cout<<tempObjCode<<"  ------ "<<length<< std::endl;
+		if(length > 30){
+			std::cout<<tempObjCode<<"  ------ "<<length<< std::endl;
+
+			textRecord << std::setw(2)<<std::setfill('0')<<std::hex << length - (tempObjCode.length()/2)<< std::dec;
+			textRecord << temp.str();
+			textRecord << "\n";
+			temp.str("");
+			length = tempObjCode.length()/2;
+			textRecord << "T"<<std::setw(4)<<std::setfill('0')<< std::hex<<ObjectCodes[i].location + BlockTable[ObjectCodes[i].blockNumber].StartingAddress<<std::dec;
+		}else if(ObjectCodes[i].blockNumber != currentBlockNumber){
+			currentBlockNumber = ObjectCodes[i].blockNumber;
+			textRecord <<std::setw(2)<<std::setfill('0')<< std::hex << length << std::dec;
+			textRecord << temp.str();
+			textRecord << "\n";
+			temp.str("");
+			length = tempObjCode.length()/2;
+			textRecord << "T"<< std::setw(4)<<std::setfill('0')<<std::hex<<ObjectCodes[i].location + BlockTable[ObjectCodes[i].blockNumber].StartingAddress<<std::dec;
+		}
+		temp << tempObjCode;
+		// std::cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+		// std::cout<<"LENGTH ---> "<<length<<std::endl;
+		// std::cout<<"CURRENT BLOCK NUMBER ---> "<<currentBlockNumber<<std::endl;
+		// std::cout<<"OBJECT CODE BLOCK NUMBER ---> "<<ObjectCodes[i].blockNumber<<std::endl;
+		// std::cout<<"TEMP ---> "<<temp.str()<<std::endl;
+		// std::cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+	}
+	textRecord << std::setw(2)<<std::setfill('0')<<std::hex << length << std::dec;
+	textRecord << temp.str();
+	return textRecord.str();
+}
+
+
+
 
 void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Literal>& LITTAB,std::map<int,ProgBlock>& BlockTable,std::map<std::string,SymTabRow>& SYMTAB,std::ofstream* outfile){
 	std::string progName ;
@@ -172,12 +218,12 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 		progName.resize(6);
 	}
 
-	headerRecord<<progName;
+	headerRecord<<"H"<<progName;
 	headerRecord<<std::setw(6)<<std::setfill('0')<<startingAddr;
 
 	
 	int progLength = BlockTable[BlockTable.size() - 1].StartingAddress + BlockTable[BlockTable.size() - 1].Length ; 
-	headerRecord<<std::setw(6)<<std::setfill('0')<<std::hex<<progLength<<std::dec<<std::endl;
+	headerRecord<<std::setw(6)<<std::setfill('0')<<std::hex<<progLength<<std::dec;
 
 	WriteLine(outfile,headerRecord.str());
 
@@ -206,6 +252,7 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 		if(parseItem.type == "Directive"){
 			if(ToUpperCase(parseItem.mnemonic) == "BASE"){
 				baseRegSet = true;
+				continue;
 			}else if(ToUpperCase(parseItem.mnemonic) == "BYTE"){
 				std::pair<int,std::string> byteLenVal =  getByteDirectiveValue(parseItem.operand1);
 				obj.format = byteLenVal.first;
@@ -219,13 +266,13 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 				continue;
 			}
 
-			std::ostringstream out;
-			out<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
-			out<<parseItem;
-			out<<obj;
-			out<<GenerateOpCode(obj)<<std::endl;
-			out<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
-			WriteLine(outfile,out.str());
+			// std::ostringstream out;
+			// out<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+			// out<<parseItem;
+			// out<<obj;
+			// out<<GenerateOpCode(obj)<<std::endl;
+			// out<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+			// WriteLine(outfile,out.str());
 
 			ObjectCodes.push_back(obj);
 			continue;
@@ -321,19 +368,25 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 				}
 			}
 		}
-		std::ostringstream out;
-		out<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
-		out<<parseItem;
-		out<<obj;
-		out<<GenerateOpCode(obj)<<std::endl;
-		out<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
-		WriteLine(outfile,out.str());
+		// std::ostringstream out;
+		// out<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+		// out<<parseItem;
+		// out<<obj;
+		// out<<GenerateOpCode(obj)<<std::endl;
+		// out<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+		// WriteLine(outfile,out.str());
 
 		ObjectCodes.push_back(obj);
 	}
 
-	// for(auto item:ObjectCodes){
-	// 	std::cout<<item;
-	// }
+	std::ostringstream textRecord ;
+	textRecord << generateTextRecord(startingAddr,ObjectCodes,BlockTable);
+	WriteLine(outfile,textRecord.str());
+
+
+	std::ostringstream endRecord ;
+	endRecord << "E" << std::setw(6) << std::setfill('0') << startingAddr;
+	WriteLine(outfile,endRecord.str());
+
 
 }

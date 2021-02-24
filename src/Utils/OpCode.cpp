@@ -15,19 +15,16 @@ std::string GenerateOpCode(ObjCode& obj){
 	// };
 	std::ostringstream out;
 	std::string opcode = "";
-	int length;
 	if(obj.operation != -1){
 		switch(obj.format){
 			case 1: {
 				opcode += std::bitset<8>(obj.operation).to_string();
-				length = 8;
 				break;
 			}
 			case 2: {
 				opcode += std::bitset<8>(obj.operation).to_string();
 				opcode += std::bitset<4>(obj.reg1).to_string();
 				opcode += std::bitset<4>(obj.reg2).to_string();
-				length = 16;
 				break;
 			}
 			case 3: {
@@ -35,25 +32,23 @@ std::string GenerateOpCode(ObjCode& obj){
 				opcode += std::bitset<8>(obj.operation).to_string().substr(0,6);
 				opcode += obj.flags.to_string();
 				opcode += std::bitset<12>(obj.displacement).to_string();
-				length = 24;
 				break;
 			}
 			case 4: {
 				opcode += std::bitset<8>(obj.operation).to_string().substr(0,6);
 				opcode += obj.flags.to_string();
 				opcode += std::bitset<20>(obj.displacement).to_string();
-				length = 32;
 				break;
 			}
 		}
-		out<<std::setw(length/4)<<std::setfill('0')<<std::hex<<std::bitset<32>(opcode).to_ulong()<<std::dec<<std::endl;
+		out<<std::setw(obj.format * 2)<<std::setfill('0')<<std::hex<<std::bitset<32>(opcode).to_ulong()<<std::dec;
 
 	}else{
 		opcode += obj.value;
 		if(obj.format * 2 == obj.value.length()){
-			out<<opcode<<std::endl;
+			out<<opcode;
 		}else{
-			out<<std::setw(obj.format*2)<<std::setfill('0')<<opcode<<std::endl;
+			out<<std::setw(obj.format*2)<<std::setfill('0')<<opcode;
 		}
 	}
 
