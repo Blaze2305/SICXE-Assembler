@@ -18,6 +18,7 @@ std::string getLiteralValue(std::string literal,std::vector<Literal> LITTAB){
 int getAbsoluteDisplacement(std::string label,std::map<std::string,SymTabRow> SYMTAB,std::vector<Literal> LITTAB,std::map<int,ProgBlock> BlockTable){
 	int TargetAddr;
 	std::string temp = "";
+	std::cout<<label<<std::endl;
 	if(label[0] == '#'){
 
 		temp = label.substr(1);
@@ -31,7 +32,6 @@ int getAbsoluteDisplacement(std::string label,std::map<std::string,SymTabRow> SY
 	}else{
 		temp = label;
 	}
-
 	auto iter = SYMTAB.find(temp);
 	if ( iter != SYMTAB.end() ) {
 		if(iter->second.Type == 'A'){
@@ -278,7 +278,7 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 				obj.flags[3] = 1;
 			}
 
-			if(parseItem.operand1[0] == '+'){
+			if(parseItem.mnemonic[0] == '+'){
 				obj.flags[2] = 0; 
 				obj.flags[1] = 0; 
 				obj.flags[0] = 1;
