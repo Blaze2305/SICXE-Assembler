@@ -6,12 +6,15 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
-
+#include <iomanip>
 #include "../Models/Structs.h"
 #include "../Models/OpTable.h"
-#include "../Utils/StringUtils.h"
+#include "../Parser/Parser.h"
+#include "../Utils/Utils.h"
 #include "../IO/IO.h"
+#include "../Utils/OpCode.h"
 
 
+void GenerateObjectProgram(std::vector<ParseResult>& ,std::vector<Literal>& ,std::map<int,ProgBlock>& ,std::map<std::string,SymTabRow>&,std::ofstream*);
 
 #endif

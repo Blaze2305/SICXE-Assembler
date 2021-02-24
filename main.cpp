@@ -2,20 +2,22 @@
 
 #include "src/IO/IO.h"
 #include "src/Parser/Parser.h"
-#include "src/Utils/StringUtils.h"
+#include "src/Utils/Utils.h"
 #include "src/Models/Structs.h"
 #include "src/Models/OpTable.h"
 #include "src/Assembler/Pass1.h"
+#include "src/Assembler/Pass2.h"
 
 std::ifstream inputFile;
 std::ofstream outputFile;
 std::vector<ParseResult> ParseArray;
 std::map<int,ProgBlock> BlockTable;
 std::vector<Literal> LITTAB;
+std::map<std::string,SymTabRow> SYMTAB;
 
 
+// This function opens the file for reading and writing data
 void openInitialStreams(std::string in, std::string out) {
-	// This function opens the file for reading and writing data
 	inputFile.open(in.c_str());
 	std::remove(out.c_str());
 	outputFile.open(out.c_str(), std::ios::app);
@@ -28,8 +30,8 @@ ParseResult readAndParse() {
 	return result;
 }
 
+// This function is called in last to close all opened file streams.
 void closeFileStreams() {
-	// This function is called in last to close all opened file streams.
 	outputFile.close();
 	inputFile.close();
 }
@@ -56,7 +58,9 @@ int main(int argc, char *argv[]){
 		ParseArray.push_back(result);
 	}
 
-	AssignLOCCTR(ParseArray,BlockTable,LITTAB);
+	AssignLOCCTR(ParseArray,BlockTable,LITTAB,SYMTAB);
+	GenerateObjectProgram(ParseArray,LITTAB,BlockTable,SYMTAB,&outputFile);
 	closeFileStreams();
+	std::cout<<"\n\n\n";
 	return 0;
 }

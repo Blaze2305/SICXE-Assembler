@@ -8,10 +8,11 @@
 #include<string>
 
 #include "../Models/Structs.h"
-#include "../Utils/StringUtils.h"
+#include "../Utils/Utils.h"
 
 
 
 ParseResult parse(std::string line);
+bool checkIfAssemblerDirective(std::string mnemonic);
 
 #endif

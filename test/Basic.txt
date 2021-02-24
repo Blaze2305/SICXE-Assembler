@@ -1,7 +1,7 @@
 COPY      START     0
 FIRST     STL       RETADR
-          LDB       #LENGTH
           BASE      LENGTH
+          LDB       #LENGTH
 CLOOP     +JSUB     RDREC
           LDA       LENGTH
           COMP      #0
@@ -20,9 +20,9 @@ LENGTH    RESW      1
 BUFFER    RESB      4096
 BUFFEND   EQU       *
 MAXLEN    EQU       BUFFEND-BUFFER
-?
-?       SUBROUTINE TO READ RECORD INFO BUFFER
-?
+.
+.       SUBROUTINE TO READ RECORD INFO BUFFER
+.
 RDREC     CLEAR     X
           CLEAR     A
           CLEAR     S
@@ -38,9 +38,9 @@ RLOOP     TD        INPUT
 EXIT      STX       LENGTH
           RSUB
 INPUT     BYTE      X'F1'
-?
-?     SUBROUTINE TO WRITE RECORD FROM BUFFER
-?
+.
+.     SUBROUTINE TO WRITE RECORD FROM BUFFER
+.
 WRREC     CLEAR     X
           LDT       LENGTH
 WLOOP     TD        =X'05'

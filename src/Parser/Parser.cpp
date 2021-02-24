@@ -82,8 +82,8 @@ ParseResult parse(std::string line) {
 	// Skips all the spaces and tabs at the end of the line
 	for (; i < line.length() && (line[i] == ' ' || line[i] == '\t'); i++);
 
-	// Set "?" to indicate a comment line, so checking if the parsed line was a comment here
-	if(s[0] != "" && s[0][0] == '?'){        // comment line
+	// Set "." to indicate a comment line, so checking if the parsed line was a comment here
+	if(s[0] != "" && s[0][0] == '.'){        // comment line
 		for (i=0; i < line.length() && (line[i] == ' ' || line[i] == '\t'); i++);
 		for (; i < line.length(); i++){
 			result.mnemonic += line[i];

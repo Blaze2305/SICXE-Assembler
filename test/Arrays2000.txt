@@ -1,0 +1,17 @@
+. Adding elements of Two arrays of size 2000 and storing in Gamma ie Gamma = Alpha +  Beta
+ADDN 	START	0
+		LDX 	#0
+	   +LDS 	#6000
+		LDT 	#3
+		BASE	BETA
+	   +LDB		#BETA
+LOOP	LDA		ALPHA,X
+		ADD		BETA,X
+	   +STA		GAMMA,X
+		ADDR	T,X
+		COMPR	X,S
+		JLT		LOOP
+ALPHA 	RESW	2000
+BETA 	RESW	2000
+GAMMA 	RESW	2000
+		END
