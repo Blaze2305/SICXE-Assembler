@@ -123,13 +123,51 @@ std::pair<int,int> getDisplacement(int PC, int Base,std::string label,std::vecto
 }
 
 
+std::pair<int,std::string> getByteDirectiveValue(std::string mnemonic){
+
+	std::string value = "";
+	int length ;
+
+	if(mnemonic[0] == 'C'){
+		// concat hex value of each char 
+		for(int i=2;i<mnemonic.length()-1;i++){
+			int ascii = (int)mnemonic[i];
+			std::ostringstream out;
+			out << std::hex << ascii;
+			value += out.str();
+		}
+		length = mnemonic.length()-3;
+	}else if(mnemonic[0] == 'X'){
+		value = mnemonic.substr(2,mnemonic.length()-3);
+		length = value.length()/2;
+	}
+
+	return std::pair<int,std::string> {length,value};
+}
+
 
 
 void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Literal>& LITTAB,std::map<int,ProgBlock>& BlockTable,std::map<std::string,SymTabRow>& SYMTAB,std::ofstream* outfile){
-	std::string progName = ParseArr[0].label;
-	std::string startingAddr = ParseArr[0].operand1;
+	std::string progName ;
+	std::string startingAddr ;
 	std::ostringstream headerRecord;
 	
+	std::vector<ParseResult>::iterator position;
+
+	position = std::find_if(ParseArr.begin(),ParseArr.end(),[](ParseResult val){
+		return(ToUpperCase(val.mnemonic) == "START");
+	});
+
+	if(position == ParseArr.end()){
+		std::cout<<"NO START DIRECTIVE FOUND. PROGRAM NAME IS ASSUMED AS 'PROGA'. STARTING ADDRESS IS 0x0";
+		progName = "PROGA";
+		startingAddr = "0";
+	}else{
+		progName = position->label;
+		startingAddr = position->operand1;
+	}
+
+
 	if(progName.length() >6){
 		progName.resize(6);
 	}
@@ -151,6 +189,8 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 	
 	for(int i = 0 ;i < ParseArr.size();i++){
 		ObjCode obj {};
+
+		
 		ParseResult &parseItem = ParseArr[i];
 
 		PCIndex = i != ParseArr.size() ? i+1 : ParseArr.size();
@@ -160,10 +200,34 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 			continue;
 		}
 
+		obj.location = parseItem.location;
+		obj.blockNumber = parseItem.block;
+
 		if(parseItem.type == "Directive"){
 			if(ToUpperCase(parseItem.mnemonic) == "BASE"){
 				baseRegSet = true;
+			}else if(ToUpperCase(parseItem.mnemonic) == "BYTE"){
+				std::pair<int,std::string> byteLenVal =  getByteDirectiveValue(parseItem.operand1);
+				obj.format = byteLenVal.first;
+				obj.value = byteLenVal.second;
+			
+			}else if(ToUpperCase(parseItem.mnemonic) == "WORD"){
+				std::string wordVal = parseItem.operand1;
+				obj.format = 3;
+				obj.value = wordVal;
+			}else{
+				continue;
 			}
+
+			std::ostringstream out;
+			out<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+			out<<parseItem;
+			out<<obj;
+			out<<GenerateOpCode(obj)<<std::endl;
+			out<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+			WriteLine(outfile,out.str());
+
+			ObjectCodes.push_back(obj);
 			continue;
 		}
 		
@@ -186,6 +250,7 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 			obj.value = getLiteralValue(parseItem.mnemonic,LITTAB);
 			continue;
 		}
+
 		obj.operation = GetInstOpCode(parseItem.mnemonic);
 		obj.format = parseItem.mnemonic[0] == '+' ? 4 : GetInstFormat(parseItem.mnemonic);
 
@@ -199,26 +264,25 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 			obj.reg2 = parseItem.operand2 != ""?GetRegisterNumber(parseItem.operand2[0]):0;
 		}else if(obj.format == 3 || obj.format == 4){
 			if(parseItem.operand1[0] == '#'){
-				obj.flags[0] = 0;
-				obj.flags[1] = 1;
+				obj.flags[5] = 0;
+				obj.flags[4] = 1;
 			}else if(parseItem.operand1[0] == '@'){
-				obj.flags[0] = 1;
-				obj.flags[1] = 0;
+				obj.flags[5] = 1;
+				obj.flags[4] = 0;
 			}else{
-				obj.flags[0] = 1;
-				obj.flags[1] = 1;
+				obj.flags[5] = 1;
+				obj.flags[4] = 1;
 			}
 
 			if(parseItem.operand1 == "X" || parseItem.operand2 == "X"){
-				obj.flags[2] = 1;
+				obj.flags[3] = 1;
 			}
 
 			if(parseItem.operand1[0] == '+'){
-				obj.flags[3] = 0; 
-				obj.flags[4] = 0; 
-				obj.flags[5] = 1;
+				obj.flags[2] = 0; 
+				obj.flags[1] = 0; 
+				obj.flags[0] = 1;
 				obj.displacement = getAbsoluteDisplacement(parseItem.operand1,SYMTAB,LITTAB,BlockTable);
-				std::cout<<obj;
 			}else{
 				// calc displacement for format 3 instructions
 
@@ -226,26 +290,29 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 				// thus parseItem.operand1 is empty and throws and error in getDisplacement
 				// spent 2 hours finding this, figured it out. am proud.
 				if(ToUpperCase(parseItem.mnemonic) == "RSUB"){
+					obj.flags[2] = 0; 
+					obj.flags[1] = 0; 
+					obj.flags[0] = 0;
 					obj.displacement = 0;
 				}else{
 					std::pair<int,int> disp = getDisplacement(PC,BASE,parseItem.operand1,LITTAB,SYMTAB,BlockTable); 
 					switch(disp.first){
 						case 0:{
-								obj.flags[3] = 0; 
-								obj.flags[4] = 0; 
-								obj.flags[5] = 0;
+								obj.flags[2] = 0; 
+								obj.flags[1] = 0; 
+								obj.flags[0] = 0;
 								break;
 						}
 						case 1:{
-								obj.flags[3] = 0; 
-								obj.flags[4] = 1; 
-								obj.flags[5] = 0;
+								obj.flags[2] = 0; 
+								obj.flags[1] = 1; 
+								obj.flags[0] = 0;
 								break;
 						}
 						case 2:{
-								obj.flags[3] = 1; 
-								obj.flags[4] = 0; 
-								obj.flags[5] = 0;
+								obj.flags[2] = 1; 
+								obj.flags[1] = 0; 
+								obj.flags[0] = 0;
 								break;
 						}
 					}
@@ -258,8 +325,10 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 		out<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
 		out<<parseItem;
 		out<<obj;
+		out<<GenerateOpCode(obj)<<std::endl;
 		out<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
 		WriteLine(outfile,out.str());
+
 		ObjectCodes.push_back(obj);
 	}
 

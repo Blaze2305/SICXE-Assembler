@@ -1,5 +1,18 @@
 #include "Structs.h"
 
+
+ObjCode::ObjCode(){
+	operation = -1 ;
+	displacement = -1 ; 
+	format = -1; 
+	reg1 = -1;
+	reg2 = -1;
+	location = -1;
+	blockNumber = -1; 
+	value = ""; 
+}
+
+
 std::ostream& operator << (std::ostream& out,const ParseResult &obj){
 	out<<"\n---------------------------------------PARSE RESULT---------------------------------------\n";
 	out<<"Label --> "<<obj.label<<std::endl;
@@ -34,19 +47,21 @@ std::ostream& operator << (std::ostream& out,const ProgBlock &obj){
 
 std::ostream& operator << (std::ostream& out,const ObjCode &obj){
 	out<<"\n---------------------------------------OBJECT CODE INFO---------------------------------------\n";
-	out<<"Operation Code --> "<<std::hex<<obj.operation<<std::hex<<std::endl;
+	out<<"Operation Code --> "<<std::hex<<obj.operation<<std::dec<<std::endl;
+	// out<<"Operation Code --> "<<obj.operation<<std::endl;
 	out<<"Format --> "<<obj.format<<std::endl;
 	out<<"Displacement --> "<<std::hex<<obj.displacement<<std::dec<<std::endl;
 	out<<"Register 1 --> "<<obj.reg1<<std::endl;
 	out<<"Register 2 --> "<<obj.reg2<<std::endl;
 	out<<"Value --> "<<obj.value<<std::endl;
+	out<<"Location --> "<<obj.location<<std::endl;
 	out<<"Flags"<<std::endl;
-	out<<"n --> "<<obj.flags[0]<<std::endl;
-	out<<"i --> "<<obj.flags[1]<<std::endl;
-	out<<"x --> "<<obj.flags[2]<<std::endl;
-	out<<"b --> "<<obj.flags[3]<<std::endl;
-	out<<"p --> "<<obj.flags[4]<<std::endl;
-	out<<"e --> "<<obj.flags[5]<<std::endl;
+	out<<"n --> "<<obj.flags[5]<<std::endl;
+	out<<"i --> "<<obj.flags[4]<<std::endl;
+	out<<"x --> "<<obj.flags[3]<<std::endl;
+	out<<"b --> "<<obj.flags[2]<<std::endl;
+	out<<"p --> "<<obj.flags[1]<<std::endl;
+	out<<"e --> "<<obj.flags[0]<<std::endl;
 	out<<"\n------------------------------------------------------------------------------\n";
 	return out;
 }

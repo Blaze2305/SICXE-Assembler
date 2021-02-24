@@ -12,6 +12,7 @@
 #include "../Parser/Parser.h"
 #include "../Utils/Utils.h"
 #include "../IO/IO.h"
+#include "../Utils/OpCode.h"
 
 
 void GenerateObjectProgram(std::vector<ParseResult>& ,std::vector<Literal>& ,std::map<int,ProgBlock>& ,std::map<std::string,SymTabRow>&,std::ofstream*);
