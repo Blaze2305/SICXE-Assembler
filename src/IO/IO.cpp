@@ -7,5 +7,5 @@ std::string ReadLine(std::ifstream  *file) {
 }
 
 void WriteLine(std::ofstream* file, std::string line) {
-	*file << line << std::endl;
+	*file << line ;
 }
