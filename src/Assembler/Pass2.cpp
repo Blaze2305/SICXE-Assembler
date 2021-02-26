@@ -152,14 +152,15 @@ std::string generateTextRecord(std::string startingAddr, std::vector<ObjCode>& O
 	std::string tempObjCode;
 	int length = 0;
 	int currentBlockNumber = ObjectCodes[0].blockNumber;
-
+	int  ObjectCodeLength = ObjectCodes.size();
 	textRecord << "T"<< std::setw(6)<<std::setfill('0')<<startingAddr;	
 	for(int i = 0; i < ObjectCodes.size();i++){
 		tempObjCode = GenerateOpCode(ObjectCodes[i]);
 
 
 		if(tempObjCode == "-1"){
-			// Handles assmebler directives like RESW, RESB and checks if it causes a change in program block
+
+			// Handles assmebler directives USE and causes a change in program block
 			if(ObjectCodes[i].blockNumber != currentBlockNumber){
 				currentBlockNumber = ObjectCodes[i].blockNumber;
 				if(length != 0){
@@ -168,6 +169,10 @@ std::string generateTextRecord(std::string startingAddr, std::vector<ObjCode>& O
 					textRecord << "\n";
 					temp.str("");
 					length = 0;
+				}
+
+				if(ObjectCodes[i+1].format != -1 && i+1 < ObjectCodeLength){
+					textRecord << "T"<<std::setw(6)<<std::setfill('0')<< std::hex<<ObjectCodes[i+1].location + BlockTable[ObjectCodes[i+1].blockNumber].StartingAddress<<std::dec;
 				}
 			}
 			continue;
@@ -284,6 +289,8 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 				std::string wordVal = parseItem.operand1;
 				obj.format = 3;
 				obj.value = wordVal;
+			}else if(ToUpperCase(parseItem.mnemonic) != "USE"){
+				continue;
 			}
 
 			// std::ostringstream out;
@@ -293,7 +300,7 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 			// out<<GenerateOpCode(obj)<<std::endl;
 			// out<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
 			// WriteLine(outfile,out.str());
-
+			
 			ObjectCodes.push_back(obj);
 			continue;
 		}
@@ -393,6 +400,7 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 		// out<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
 		// out<<parseItem;
 		// out<<obj;
+		// out<<"INDEX --> "<<ObjectCodes.size() + 1 <<std::endl;
 		// out<<GenerateOpCode(obj)<<std::endl;
 		// out<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
 		// WriteLine(outfile,out.str());

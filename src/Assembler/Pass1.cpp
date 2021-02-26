@@ -266,6 +266,7 @@ void AssignLOCCTR(std::vector<ParseResult>& ParseArr,std::map<int,ProgBlock>& Bl
 					currentBlockNumber = temp.first;
 					LOCCTR = temp.second;
 				}
+				obj.block = currentBlockNumber;
 				continue;
 
 			// Handle LTORG and END , both which cause litrals in the LITTAB to be assigned address/value
