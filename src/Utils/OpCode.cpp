@@ -15,6 +15,13 @@ std::string GenerateOpCode(ObjCode& obj){
 	// };
 	std::ostringstream out;
 	std::string opcode = "";
+
+	// Handle assemblerDirectives like RESW, RESB as those can cause prog block switches but wont generate obj codes otherwise
+	if(obj.format == -1){
+		return "-1";
+	}
+
+	// handle instructions normally
 	if(obj.operation != -1){
 		switch(obj.format){
 			case 1: {
@@ -44,6 +51,7 @@ std::string GenerateOpCode(ObjCode& obj){
 		out<<std::setw(obj.format * 2)<<std::setfill('0')<<std::hex<<std::bitset<32>(opcode).to_ulong()<<std::dec;
 
 	}else{
+		// Handle WORD and BYTE directives
 		opcode += obj.value;
 		if(obj.format * 2 == obj.value.length()){
 			out<<opcode;

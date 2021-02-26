@@ -99,7 +99,6 @@ std::pair<int,int> getDisplacement(int PC, int Base,std::string label,std::vecto
 				TargetAddr = iter->second.Value + BlockTable[blockNumber].StartingAddress;
 			}
 		} else {
-			// https://stackoverflow.com/questions/59518468/terminate-called-after-throwing-an-instance-of-char-const-in-string-function
 
 			std::string err = "INVALID SYMBOL USED  " + label;
 			throw std::runtime_error(err);
@@ -154,30 +153,49 @@ std::string generateTextRecord(std::string startingAddr, std::vector<ObjCode>& O
 	int length = 0;
 	int currentBlockNumber = ObjectCodes[0].blockNumber;
 
-	textRecord << "T"<< std::setw(4)<<std::setfill('0')<<startingAddr;	
+	textRecord << "T"<< std::setw(6)<<std::setfill('0')<<startingAddr;	
 	for(int i = 0; i < ObjectCodes.size();i++){
 		tempObjCode = GenerateOpCode(ObjectCodes[i]);
-		length += tempObjCode.length()/2;
-		std::cout<<tempObjCode<<"  ------ "<<length<< std::endl;
-		if(length > 30){
-			std::cout<<tempObjCode<<"  ------ "<<length<< std::endl;
 
-			textRecord << std::setw(2)<<std::setfill('0')<<std::hex << length - (tempObjCode.length()/2)<< std::dec;
-			textRecord << temp.str();
-			textRecord << "\n";
-			temp.str("");
-			length = tempObjCode.length()/2;
-			textRecord << "T"<<std::setw(4)<<std::setfill('0')<< std::hex<<ObjectCodes[i].location + BlockTable[ObjectCodes[i].blockNumber].StartingAddress<<std::dec;
-		}else if(ObjectCodes[i].blockNumber != currentBlockNumber){
-			currentBlockNumber = ObjectCodes[i].blockNumber;
-			textRecord <<std::setw(2)<<std::setfill('0')<< std::hex << length << std::dec;
-			textRecord << temp.str();
-			textRecord << "\n";
-			temp.str("");
-			length = tempObjCode.length()/2;
-			textRecord << "T"<< std::setw(4)<<std::setfill('0')<<std::hex<<ObjectCodes[i].location + BlockTable[ObjectCodes[i].blockNumber].StartingAddress<<std::dec;
+
+		if(tempObjCode == "-1"){
+			// Handles assmebler directives like RESW, RESB and checks if it causes a change in program block
+			if(ObjectCodes[i].blockNumber != currentBlockNumber){
+				currentBlockNumber = ObjectCodes[i].blockNumber;
+				if(length != 0){
+					textRecord <<std::setw(2)<<std::setfill('0')<< std::hex << length << std::dec;
+					textRecord << temp.str();
+					textRecord << "\n";
+					temp.str("");
+					length = 0;
+				}
+			}
+			continue;
+		}else if(tempObjCode != ""){
+			length += tempObjCode.length()/2;
+			if(length > 30){
+				textRecord << std::setw(2)<<std::setfill('0')<<std::hex << length - (tempObjCode.length()/2)<< std::dec;
+				textRecord << temp.str();
+				textRecord << "\n";
+				temp.str("");
+				length = tempObjCode.length()/2;
+				textRecord << "T"<<std::setw(6)<<std::setfill('0')<< std::hex<<ObjectCodes[i].location + BlockTable[ObjectCodes[i].blockNumber].StartingAddress<<std::dec;
+			}else if(ObjectCodes[i].blockNumber != currentBlockNumber){
+				if(length != 0 ){
+					currentBlockNumber = ObjectCodes[i].blockNumber;
+					textRecord <<std::setw(2)<<std::setfill('0')<< std::hex << length - (tempObjCode.length()/2)<< std::dec;
+					textRecord << temp.str();
+					textRecord << "\n";
+					temp.str("");
+					length = tempObjCode.length()/2;
+				}
+				textRecord << "T"<< std::setw(6)<<std::setfill('0')<<std::hex<<ObjectCodes[i].location + BlockTable[ObjectCodes[i].blockNumber].StartingAddress<<std::dec;
+			}
+			temp << tempObjCode;
+		}else {
+			continue;
 		}
-		temp << tempObjCode;
+
 		// std::cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
 		// std::cout<<"LENGTH ---> "<<length<<std::endl;
 		// std::cout<<"CURRENT BLOCK NUMBER ---> "<<currentBlockNumber<<std::endl;
@@ -185,8 +203,11 @@ std::string generateTextRecord(std::string startingAddr, std::vector<ObjCode>& O
 		// std::cout<<"TEMP ---> "<<temp.str()<<std::endl;
 		// std::cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
 	}
-	textRecord << std::setw(2)<<std::setfill('0')<<std::hex << length << std::dec;
-	textRecord << temp.str();
+	if(length > 0){
+		textRecord << std::setw(2)<<std::setfill('0')<<std::hex << length << std::dec;
+		textRecord << temp.str();
+		textRecord << "\n";
+	}
 	return textRecord.str();
 }
 
@@ -197,6 +218,7 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 	std::string progName ;
 	std::string startingAddr ;
 	std::ostringstream headerRecord;
+	std::ostringstream modificationRecord;
 	
 	std::vector<ParseResult>::iterator position;
 
@@ -223,7 +245,7 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 
 	
 	int progLength = BlockTable[BlockTable.size() - 1].StartingAddress + BlockTable[BlockTable.size() - 1].Length ; 
-	headerRecord<<std::setw(6)<<std::setfill('0')<<std::hex<<progLength<<std::dec;
+	headerRecord<<std::setw(6)<<std::setfill('0')<<std::hex<<progLength<<std::dec<<std::endl;
 
 	WriteLine(outfile,headerRecord.str());
 
@@ -262,8 +284,6 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 				std::string wordVal = parseItem.operand1;
 				obj.format = 3;
 				obj.value = wordVal;
-			}else{
-				continue;
 			}
 
 			// std::ostringstream out;
@@ -330,6 +350,7 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 				obj.flags[1] = 0; 
 				obj.flags[0] = 1;
 				obj.displacement = getAbsoluteDisplacement(parseItem.operand1,SYMTAB,LITTAB,BlockTable);
+				modificationRecord << "M" << std::setw(4) << std::setfill('0')<< std::hex << obj.location + 1 << std::dec << "05\n";
 			}else{
 				// calc displacement for format 3 instructions
 
@@ -383,10 +404,10 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 	textRecord << generateTextRecord(startingAddr,ObjectCodes,BlockTable);
 	WriteLine(outfile,textRecord.str());
 
+	WriteLine(outfile,modificationRecord.str());
 
 	std::ostringstream endRecord ;
 	endRecord << "E" << std::setw(6) << std::setfill('0') << startingAddr;
 	WriteLine(outfile,endRecord.str());
-
 
 }
