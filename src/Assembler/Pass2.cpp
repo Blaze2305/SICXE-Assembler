@@ -5,10 +5,10 @@
 // 		literal : std::string The literal name
 // 		LITTAB : std::vector<Literal> Literal Table
 // returns the value of the literal
-std::string getLiteralValue(std::string literal,std::vector<Literal> LITTAB){
+std::pair<std::string,int> getLiteralValue(std::string literal,std::vector<Literal> LITTAB){
 	for(auto item : LITTAB){
 		if(item.Name == literal){
-			return item.Value;
+			return std::pair<std::string,int>(item.Value,item.Value.length()/2);
 		}
 	}
 	throw new std::string("LITERAL DOES NOT EXIST => " + literal);
@@ -157,6 +157,13 @@ std::string generateTextRecord(std::string startingAddr, std::vector<ObjCode>& O
 	for(int i = 0; i < ObjectCodes.size();i++){
 		tempObjCode = GenerateOpCode(ObjectCodes[i]);
 
+		std::cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+		std::cout<<"ObjecCode ---> "<<ObjectCodes[i]<<std::endl;
+		std::cout<<"CURRENT BLOCK NUMBER ---> "<<currentBlockNumber<<std::endl;
+		std::cout<<"OBJECT CODE BLOCK NUMBER ---> "<<ObjectCodes[i].blockNumber<<std::endl;
+		std::cout<<"TEMP ---> "<<tempObjCode<<std::endl;
+		std::cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+
 
 		if(tempObjCode == "-1"){
 
@@ -201,12 +208,7 @@ std::string generateTextRecord(std::string startingAddr, std::vector<ObjCode>& O
 			continue;
 		}
 
-		// std::cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
-		// std::cout<<"LENGTH ---> "<<length<<std::endl;
-		// std::cout<<"CURRENT BLOCK NUMBER ---> "<<currentBlockNumber<<std::endl;
-		// std::cout<<"OBJECT CODE BLOCK NUMBER ---> "<<ObjectCodes[i].blockNumber<<std::endl;
-		// std::cout<<"TEMP ---> "<<temp.str()<<std::endl;
-		// std::cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+		
 	}
 	if(length > 0){
 		textRecord << std::setw(2)<<std::setfill('0')<<std::hex << length << std::dec;
@@ -321,7 +323,11 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 		}
 
 		if(parseItem.mnemonic[0] == '='){
-			obj.value = getLiteralValue(parseItem.mnemonic,LITTAB);
+			std::pair<std::string,int> literalVals =  getLiteralValue(parseItem.mnemonic,LITTAB);
+			obj.value = literalVals.first;
+			obj.format = literalVals.second;
+			std::cout<<obj;
+			ObjectCodes.push_back(obj);
 			continue;
 		}
 
