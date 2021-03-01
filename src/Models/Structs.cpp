@@ -54,7 +54,7 @@ std::ostream& operator << (std::ostream& out,const ObjCode &obj){
 	out<<"Register 1 --> "<<obj.reg1<<std::endl;
 	out<<"Register 2 --> "<<obj.reg2<<std::endl;
 	out<<"Value --> "<<obj.value<<std::endl;
-	out<<"Location --> "<<obj.location<<std::endl;
+	out<<"Location --> "<<std::hex<<obj.location<<std::dec<<std::endl;
 	out<<"Block Number --> "<<obj.blockNumber<<std::endl;
 	out<<"Flags"<<std::endl;
 	out<<"n --> "<<obj.flags[5]<<std::endl;

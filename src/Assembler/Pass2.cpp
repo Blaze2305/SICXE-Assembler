@@ -18,7 +18,7 @@ std::pair<std::string,int> getLiteralValue(std::string literal,std::vector<Liter
 int getAbsoluteDisplacement(std::string label,std::map<std::string,SymTabRow> SYMTAB,std::vector<Literal> LITTAB,std::map<int,ProgBlock> BlockTable){
 	int TargetAddr;
 	std::string temp = "";
-	std::cout<<label<<std::endl;
+	// std::cout<<label<<std::endl;
 	if(label[0] == '#'){
 
 		temp = label.substr(1);
@@ -157,12 +157,12 @@ std::string generateTextRecord(std::string startingAddr, std::vector<ObjCode>& O
 	for(int i = 0; i < ObjectCodes.size();i++){
 		tempObjCode = GenerateOpCode(ObjectCodes[i]);
 
-		std::cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
-		std::cout<<"ObjecCode ---> "<<ObjectCodes[i]<<std::endl;
-		std::cout<<"CURRENT BLOCK NUMBER ---> "<<currentBlockNumber<<std::endl;
-		std::cout<<"OBJECT CODE BLOCK NUMBER ---> "<<ObjectCodes[i].blockNumber<<std::endl;
-		std::cout<<"TEMP ---> "<<tempObjCode<<std::endl;
-		std::cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+		// std::cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+		// std::cout<<"ObjecCode ---> "<<ObjectCodes[i]<<std::endl;
+		// std::cout<<"CURRENT BLOCK NUMBER ---> "<<currentBlockNumber<<std::endl;
+		// std::cout<<"OBJECT CODE BLOCK NUMBER ---> "<<ObjectCodes[i].blockNumber<<std::endl;
+		// std::cout<<"TEMP ---> "<<tempObjCode<<std::endl;
+		// std::cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
 
 
 		if(tempObjCode == "-1"){
@@ -170,17 +170,18 @@ std::string generateTextRecord(std::string startingAddr, std::vector<ObjCode>& O
 			// Handles assmebler directives USE and causes a change in program block
 			if(ObjectCodes[i].blockNumber != currentBlockNumber){
 				currentBlockNumber = ObjectCodes[i].blockNumber;
-				if(length != 0){
-					textRecord <<std::setw(2)<<std::setfill('0')<< std::hex << length << std::dec;
-					textRecord << temp.str();
-					textRecord << "\n";
-					temp.str("");
-					length = 0;
-				}
+			}
+			// Handle the RESB and RESW directives
+			if(length != 0){
+				textRecord <<std::setw(2)<<std::setfill('0')<< std::hex << length << std::dec;
+				textRecord << temp.str();
+				textRecord << "\n";
+				temp.str("");
+				length = 0;
+			}
 
-				if(ObjectCodes[i+1].format != -1 && i+1 < ObjectCodeLength){
-					textRecord << "T"<<std::setw(6)<<std::setfill('0')<< std::hex<<ObjectCodes[i+1].location + BlockTable[ObjectCodes[i+1].blockNumber].StartingAddress<<std::dec;
-				}
+			if(ObjectCodes[i+1].format != -1 && i+1 < ObjectCodeLength){
+				textRecord << "T"<<std::setw(6)<<std::setfill('0')<< std::hex<<ObjectCodes[i+1].location + BlockTable[ObjectCodes[i+1].blockNumber].StartingAddress<<std::dec;
 			}
 			continue;
 		}else if(tempObjCode != ""){
@@ -291,7 +292,9 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 				std::string wordVal = parseItem.operand1;
 				obj.format = 3;
 				obj.value = wordVal;
-			}else if(ToUpperCase(parseItem.mnemonic) != "USE"){
+			}else if(ToUpperCase(parseItem.mnemonic) == "RESB" ||ToUpperCase(parseItem.mnemonic) == "RESW" || ToUpperCase(parseItem.mnemonic) == "USE" ){
+
+			}else{
 				continue;
 			}
 
@@ -326,7 +329,7 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 			std::pair<std::string,int> literalVals =  getLiteralValue(parseItem.mnemonic,LITTAB);
 			obj.value = literalVals.first;
 			obj.format = literalVals.second;
-			std::cout<<obj;
+			// std::cout<<obj;
 			ObjectCodes.push_back(obj);
 			continue;
 		}
@@ -363,7 +366,7 @@ void GenerateObjectProgram(std::vector<ParseResult>& ParseArr,std::vector<Litera
 				obj.flags[1] = 0; 
 				obj.flags[0] = 1;
 				obj.displacement = getAbsoluteDisplacement(parseItem.operand1,SYMTAB,LITTAB,BlockTable);
-				modificationRecord << "M" << std::setw(4) << std::setfill('0')<< std::hex << obj.location + 1 << std::dec << "05\n";
+				modificationRecord << "M" << std::setw(6) << std::setfill('0')<< std::hex << obj.location + 1 << std::dec << "05\n";
 			}else{
 				// calc displacement for format 3 instructions
 
