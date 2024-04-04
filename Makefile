@@ -4,7 +4,7 @@ BUILD_DIR = bin
 TEST_FILE_DIR = test
 OUTPUT_FILE = Output
 MEMTEST = valgrind
-GXX = g++
+GXX = g++ -std=c++20
 
 
 default: build
@@ -18,6 +18,11 @@ endif
 
 ifeq ($(DETECTED_OS),Windows)
 BUILD_FILE = app.exe
+TEST_FILES = ${shell dir ${TEST_FILE_DIR}}
+endif
+
+ifeq ($(DETECTED_OS),Darwin)
+BUILD_FILE = app.out
 TEST_FILES = ${shell dir ${TEST_FILE_DIR}}
 endif
 
